@@ -197,10 +197,19 @@
         <input type="submit" id="sub-create-room"/>
     </form>
 </div>
+<div id='join-room-overlay' class="overlay overlay-hidden">
+    <h1>So you want to join a new chat?</h1>
+    <p>That's great! Please fill out this information.</p>
+    <form id="join-room">
+        <input type="text" name="username" id="username-join" placeholder="Username"/><br/>
+        <input type="submit" id="sub-join-room"/>
+    </form>
+</div>
 <div id="map"></div>
 <div class="transition"></div>
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script>
+    var savedRoomId;
     $("#create-room-overlay").submit((e) => {
         if(coords !== null) {
             e.preventDefault();
@@ -229,7 +238,6 @@
                     $("#create-room-overlay").removeClass("overlay-hidden");
                 });
             fab.innerHTML = " + ";
-            //L.DomEvent.on();
             return fab;
         },
         onRemove: () => {
@@ -265,8 +273,10 @@
             $.get(`https://api.pinchat.tech/rooms/?lon=${location.coords.longitude}&lat=${location.coords.latitude}`,
                 function(res) {
                     for(let item of res) {
+                        L.circle([item.loc[1], item.loc[0]], {radius: 500, color: "blue"}).addTo(map)
+                            .bindPopup(`MY LOCATION`);
                         L.circle([item.loc[1], item.loc[0]], {radius: 500}).addTo(map)
-                            .bindPopup(`${item.name}: <a href='#' onclick='roomJoin("${item.id}", "fucc")'>Join</a>`)
+                            .bindPopup(`${item.name}: <a href='#' onclick='unameRequest("${item.id}")'>Join</a>`)
                             .openPopup();
                     }
                 });
@@ -321,6 +331,16 @@
         it.animate({top: '0'}, 750, function () {
             window.location.href = `./chat.html#room=${roomId},username=${username}`
         });
+    }
+    $("#join-room").submit((e) => {
+        e.preventDefault();
+        window.location.href = `./chat.html#room=${savedRoomId},username=${$("#username-join").val()}`;
+        return false;
+    });
+
+    function unameRequest(roomId) {
+        $("#join-room-overlay").removeClass("overlay-hidden");
+        savedRoomId = roomId;
     }
 </script>
 </body>
