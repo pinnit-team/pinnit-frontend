@@ -2,48 +2,85 @@
 <html>
     <head>
         <title>Socket.IO chat</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, intial-scale=1">
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font: 13px Helvetica, Arial; background-color: #d9cfbd; color: white }
-            form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-            form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; margin-top:0%;}
-            form button { width: 9%; background: #a6a6a6; border: none; padding: 10px; }
+            ul {min-height: 90%; width: 100%;}
+            form { background: #d9cfbd; padding: 3px; bottom: 0; width: 100%; }
+            form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; border-style: solid; border: 2px solid; border-radius: 25px;}
+            form button { width: 9%; background: #a6a6a6; border: 2px solid; border-radius: 25px; padding: 10px; }
             #messages { list-style-type: none; margin: 0; padding: 0; }
             #messages li { padding: 5px 10px; }
             #messages li:nth-child(odd) { background: #c7b99e; }
         </style>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
-        <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     </head>
     <body>
-        <h1 id="chat-name" style="margin-left: 40%;"></h1>
-        <hr/>
-        <ul id="messages" style="margin-top: 2%;"></ul>
-        <form action="">
-            <input id="m" autocomplete="off" /><button>Send</button>
-        </form>
+        <div id="chat-div" width="100%">
+            <h1 id="chat-name" style="margin-left: 40%; height: 90%;"></h1>
+            <hr style="border: solid 1px #2e2e2e;"/>
+            <ul id="messages" style="margin-top: 2%; height:100%;"></ul>
+            <form action="">
+                <input id="m" autocomplete="off" /><button>Send</button>
+            </form>
+        </div>
     </body> 
 
     <script>
         var chatTitle = document.getElementById("chat-name"); 
         if(chatTitle.innerHTML === ""){
             chatTitle.innerHTML = "Default Title";
-        }   
+        }    
 
         $(function(){
-            var socket = io(); 
+            //var socket = io('wss://api.pinchat.tech'); 
+            //var socket = io('ws://35.223.153.160/');
+            var socket = io('10.192.144.199:80');
+            //var socket = io("ws://echo.websocket.org");
+            var time = new Date();
+            var currentTime = time.getHours() + ":" + time.getMinutes() + "  " + time.getDay() + "/" + time.getMonth() + "/" + time.getYear();
+    
+            if(window.location.hash){
+                var hash = window.location.hash.substring(1);
+                var roomId = (hash.split(",")[0]).split("=")[1];
+                var username = (hash.split(",")[1]).split("=")[1];
+
+                console.log(roomId);
+                console.log(username);
+
+                socket.emit('join', {username: username, room: roomId}, function(){
+                    socket.on("join", function(data){
+                        console.log(data);
+                    });
+                });
+
+                socket.on("join", function(data){
+                    console.log(data);
+                });
+            }else{
+                window.location.replace("ws://api.pinchat.tech");
+                alert("Error: Could not join chatroom");
+            }                       
+
             $('form').submit(function(e){
                 e.preventDefault(); 
-                socket.emit('message', $('#m').val());
+                socket.emit('sendmsg', $('#m').val());
                 $('#m').val('');
                 return false;
             });
-            socket.on('message', function(usr, msg, time){
+            socket.on('sendmsg', function(token, msg, room, from){
+                console.log(token + msg + room + from);
+
                 var newMsg = document.createElement('li');
                 var messages = document.getElementById('messages');
 
-                newMsg.innerHTML = usr + ":   " + msg + "   " + time;
-                console.log(newMsg);
+                newMsg.innerHTML = token + ":   " + msg + "   " + currentTime;
                 messages.appendChild(newMsg);
             });
         });
