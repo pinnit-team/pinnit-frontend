@@ -205,7 +205,7 @@
         if(coords !== null) {
             e.preventDefault();
             $.post({
-                url: 'http://10.192.144.199/rooms/',
+                url: 'https://api.pinchat.tech/rooms/',
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
             }, JSON.stringify({
@@ -262,7 +262,7 @@
             console.log("Fetched location!");
             coords = location.coords;
             map.setView([location.coords.latitude, location.coords.longitude], 13);
-            $.get(`http://10.192.144.199/rooms/?lon=${location.coords.longitude}&lat=${location.coords.latitude}`,
+            $.get(`https://api.pinchat.tech/rooms/?lon=${location.coords.longitude}&lat=${location.coords.latitude}`,
                 function(res) {
                     for(let item of res) {
                         L.marker([item.loc[1], item.loc[0]]).addTo(map)
