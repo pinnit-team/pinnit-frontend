@@ -260,7 +260,7 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
-    $.get('http://10.192.144.199/rooms/', function(res) {
+    $.get('https://api.pinchat.tech/rooms/', function(res) {
         let data = {data: []};
         for(let room of res) {
             for(let user of room.users) {
