@@ -54,7 +54,9 @@
             var socket = io('api.pinchat.tech');
             //var socket = io("ws://echo.websocket.org");
             var time = new Date();
-            var currentTime = time.getHours() + ":" + time.getMinutes() + "  " + time.getDay() + "/" + time.getMonth() + "/" + time.getYear();
+            //console.log(time);
+            //var currentTime = time.getHours() + ":" + time.getMinutes() + "  " + time.getDay() + "/" + time.getMonth() + "/" + time.getYear();
+            var currentTime = time;
 
             if(window.location.hash){
                 var hash = window.location.hash.substring(1);
@@ -70,9 +72,7 @@
                 socket.on("join-private", function(data){
                     userId = data["userId"];
                     token = data["token"];
-                    console.log(token);
                     roomName = data["room"];
-                    console.log(roomName);
                     chatTitle.innerHTML = String(roomName);
                 })
             }else{
