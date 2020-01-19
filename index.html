@@ -273,9 +273,9 @@
             $.get(`https://api.pinchat.tech/rooms/?lon=${location.coords.longitude}&lat=${location.coords.latitude}`,
                 function(res) {
                     for(let item of res) {
-                        L.circle([item.loc[1], item.loc[0]], {radius: 500, color: "blue"}).addTo(map)
+                        L.circle([item.loc[1], item.loc[0]], {radius: 50, color: "blue"}).addTo(map)
                             .bindPopup(`MY LOCATION`);
-                        L.circle([item.loc[1], item.loc[0]], {radius: 500}).addTo(map)
+                        L.circle([item.loc[1], item.loc[0]], {radius: 100}).addTo(map)
                             .bindPopup(`${item.name}: <a href='#' onclick='unameRequest("${item.id}")'>Join</a>`)
                             .openPopup();
                     }

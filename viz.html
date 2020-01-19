@@ -262,10 +262,17 @@
     }).addTo(map);
     var heatmapLayer = new HeatmapOverlay({radius: 10});
     heatmapLayer.addTo(map);
+    let circleViews = [];
     window.setInterval(() => {
         $.get('https://api.pinchat.tech/rooms/', function(res) {
             let data = {data: []};
+            for(let circle of circleViews) {
+                circle.removeFrom(map);
+            }
             for(let room of res) {
+                circleViews.push(L.circle([room.loc[1], room.loc[0]], {radius: 100}).addTo(map)
+                    .bindPopup(`${room.name}: <a href='#' onclick='unameRequest("${room.id}")'>Join</a>`)
+                    .openPopup());
                 for(let user of room.users) {
                     data.data.push({lat: user[1], lng: user[0], value: room.users.length / room.messages});
                 }
