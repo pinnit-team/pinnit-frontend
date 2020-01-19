@@ -184,21 +184,49 @@
     </style>
 </head>
 <body>
-<div class="overlay overlay-hidden">
+<div id="error-overlay" class="overlay overlay-hidden">
     <h1>HEY THERE WEIRDO!</h1>
     <p>You need to allow us to get your location so we can show you chats near you</p>
+</div>
+<div id='create-room-overlay' class="overlay overlay-hidden">
+    <h1>So you want to make a new chat?</h1>
+    <p>That's great! Please fill out this information.</p>
+    <form id="create-room">
+        <input type="text" name="roomname" id="roomname" placeholder="Room name"/><br/>
+        <input type="text" name="username" id="username" placeholder="Username"/><br/>
+        <input type="submit" id="sub-create-room"/>
+    </form>
 </div>
 <div id="map"></div>
 <div class="transition"></div>
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script>
+    $("#create-room-overlay").submit((e) => {
+        if(coords !== null) {
+            e.preventDefault();
+            $.post({
+                url: 'http://10.192.144.199/rooms/',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }, JSON.stringify({
+                name: $("#roomname").val(),
+                lat: coords.latitude,
+                lon: coords.longitude
+            }), function(res) {
+                if(res.err === null) {
+                    roomJoin(res.id, $("#username"))
+                }
+            });
+        }
+        return false;
+    });
     L.Control.CreateChat = L.Control.extend({
         onAdd: () => {
             var fab = L.DomUtil.create('button', 'fab');
             L.DomEvent.addListener(fab, 'click', L.DomEvent.stopPropagation)
                 .addListener(fab, 'click', L.DomEvent.preventDefault)
                 .addListener(fab, 'click', () => {
-
+                    $("#create-room-overlay").removeClass("overlay-hidden");
                 });
             fab.innerHTML = " + ";
             //L.DomEvent.on();
@@ -227,15 +255,18 @@
     });
     jQuery.easing._default = "easeOutBounce";
 
+    var coords = null;
+
     function permissionCheck() {
         function success(location) {
             console.log("Fetched location!");
+            coords = location.coords;
             map.setView([location.coords.latitude, location.coords.longitude], 13);
-            $.get(`http://10.192.144.199:5000/rooms/?lon=${location.coords.longitude}&lat=${location.coords.latitude}`,
+            $.get(`http://10.192.144.199/rooms/?lon=${location.coords.longitude}&lat=${location.coords.latitude}`,
                 function(res) {
                     for(let item of res) {
                         L.marker([item.loc[1], item.loc[0]]).addTo(map)
-                            .bindPopup(`${item.name}: <a href='#' onclick='roomJoin("${item.id}")'>Join</a>`)
+                            .bindPopup(`${item.name}: <a href='#' onclick='roomJoin("${item.id}", "fucc")'>Join</a>`)
                             .openPopup();
                     }
                 });
@@ -244,22 +275,22 @@
         function fail(code) {
             console.log(code);
             if(code === 0 || code === 2 || code === 3) {
-                $(".overlay > h1").text("Geolocation Error");
-                $(".overlay > p").text("We had trouble getting a location from your browser. Does your device have GPS available?");
-                $(".overlay").removeClass("overlay-hidden");
+                $("#error-overlay > h1").text("Geolocation Error");
+                $("#error-overlay > p").text("We had trouble getting a location from your browser. Does your device have GPS available?");
+                $("#error-overlay").removeClass("overlay-hidden");
             } else {
-                $(".overlay > h1").text("Welcome Aboard!");
-                $(".overlay > p").text("In order to participate in geochat, " +
+                $("#error-overlay > h1").text("Welcome Aboard!");
+                $("#error-overlay > p").text("In order to participate in geochat, " +
                     "you will need to allow us to use location services while on this site. Please give this site permission.");
-                var selector = $(".overlay > button");
+                var selector = $("#error-overlay > button");
                 if(selector.length === 0) {
-                    $(".overlay").append($("<button />", {
+                    $("#error-overlay").append($("<button />", {
                         text: "Try Again",
                         class: "pure-material-button-contained",
                         click: window.location.reload.bind(window.location)
                     }));
                 }
-                $(".overlay").removeClass("overlay-hidden");
+                $("#error-overlay").removeClass("overlay-hidden");
 
             }
         }
@@ -277,18 +308,18 @@
     }).addTo(map);
     L.control.createchat({ position: 'bottomright' }).addTo(map);
     if(!navigator.geolocation) {
-        $(".overlay > h1").text("Geolocation Not Supported");
-        $(".overlay > p").text("Your browser or OS does not support geolocation! Please try again on a different browser!");
-        $(".overlay").removeClass("overlay-hidden")
+        $("#error-overlay > h1").text("Geolocation Not Supported");
+        $("#error-overlay > p").text("Your browser or OS does not support geolocation! Please try again on a different browser!");
+        $("#error-overlay").removeClass("overlay-hidden")
     } else {
         permissionCheck();
     }
 
-    function roomJoin(roomId) {
+    function roomJoin(roomId, username) {
         console.log(this);
         let it = $(".transition");
         it.animate({top: '0'}, 750, function () {
-            window.location.href = `./chat.html#${roomId}`
+            window.location.href = `./chat.html#room=${roomId},username=${username}`
         });
     }
 </script>
