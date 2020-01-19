@@ -13,6 +13,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link rel="next" href="chat.html">
     <style>
+        .fab {
+            width: 70px;
+            height: 70px;
+            background-color: red;
+            border-radius: 50%;
+            box-shadow: 0 6px 10px 0 #666;
+            transition: all 0.1s ease-in-out;
+
+            font-size: 50px;
+            color: white;
+            text-align: center;
+            line-height: 70px;
+        }
+
+        .fab:hover {
+            box-shadow: 0 6px 14px 0 #666;
+            transform: scale(1.05);
+        }
         .pure-material-button-contained {
             position: relative;
             display: inline-block;
@@ -174,6 +192,25 @@
 <div class="transition"></div>
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script>
+    L.Control.CreateChat = L.Control.extend({
+        onAdd: () => {
+            var fab = L.DomUtil.create('button', 'fab');
+            L.DomEvent.addListener(fab, 'click', L.DomEvent.stopPropagation)
+                .addListener(fab, 'click', L.DomEvent.preventDefault)
+                .addListener(fab, 'click', () => {
+
+                });
+            fab.innerHTML = " + ";
+            //L.DomEvent.on();
+            return fab;
+        },
+        onRemove: () => {
+            //L.DomEvent.off()
+        }
+    });
+    L.control.createchat = (opts) => {
+        return new L.Control.CreateChat(opts);
+    };
     jQuery.extend( jQuery.easing,{
         def: 'easeOutQuad',
         easeOutBounce: function (x,t,b,c,d) {
@@ -238,6 +275,7 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
+    L.control.createchat({ position: 'bottomright' }).addTo(map);
     if(!navigator.geolocation) {
         $(".overlay > h1").text("Geolocation Not Supported");
         $(".overlay > p").text("Your browser or OS does not support geolocation! Please try again on a different browser!");
@@ -245,10 +283,6 @@
     } else {
         permissionCheck();
     }
-
-    map.on('click', (e) => {
-        L.popup().setLatLng(e.latlng).setContent('eat asshole daily').openOn(map);
-    });
 
     function roomJoin(roomId) {
         console.log(this);
