@@ -10,6 +10,7 @@
             integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
             crossorigin=""></script>
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link rel="next" href="chat.html">
     <style>
         .pure-material-button-contained {
@@ -146,6 +147,22 @@
         .overlay-hidden {
             display: none;
         }
+
+        .transition {
+            position: fixed; /* Sit on top of the page content */
+            display: block; /* Hidden by default */
+            width: 100%; /* Full width (cover the whole page) */
+            height: 100%; /* Full height (cover the whole page) */
+            top: 100%;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #fafafa; /* Black background with opacity */
+            z-index: 10000; /* Specify a stack order in case you're using a different order for other elements */
+            cursor: pointer; /* Add a pointer on hover */
+            color: #ffffff;
+            text-align:  center;
+        }
     </style>
 </head>
 <body>
@@ -154,8 +171,25 @@
     <p>You need to allow us to get your location so we can show you chats near you</p>
 </div>
 <div id="map"></div>
+<div class="transition"></div>
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script>
+    jQuery.extend( jQuery.easing,{
+        def: 'easeOutQuad',
+        easeOutBounce: function (x,t,b,c,d) {
+            if ((t/=d) < (1/2.75)) {
+                return c*(7.5625*t*t) + b;
+            } else if (t < (2/2.75)) {
+                return c*(7.5625*(t-=(1.5/2.75))*t + .75) + b;
+            } else if (t < (2.5/2.75)) {
+                return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b;
+            } else {
+                return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b;
+            }
+        }
+    });
+    jQuery.easing._default = "easeOutBounce";
+
     function permissionCheck() {
         function success(location) {
             console.log("Fetched location!");
@@ -212,9 +246,16 @@
         permissionCheck();
     }
 
+    map.on('click', (e) => {
+        L.popup().setLatLng(e.latlng).setContent('eat asshole daily').openOn(map);
+    });
+
     function roomJoin(roomId) {
         console.log(this);
-
+        let it = $(".transition");
+        it.animate({top: '0'}, 750, function () {
+            window.location.href = `./chat.html#${roomId}`
+        });
     }
 </script>
 </body>
