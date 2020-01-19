@@ -10,7 +10,7 @@
             form button { width: 9%; background: #a6a6a6; border: none; padding: 10px; }
             #messages { list-style-type: none; margin: 0; padding: 0; }
             #messages li { padding: 5px 10px; }
-            #messages li:nth-child(odd) { background: #eee; }
+            #messages li:nth-child(odd) { background: #4d4d4d; }
         </style>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
         <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
@@ -37,9 +37,13 @@
                 $('#m').val('');
                 return false;
             });
-            socket.on('message', function(msg){
-                console.log(msg);
-                $('messages').append($('<li>').text(msg));
+            socket.on('message', function(usr, msg, time){
+                var newMsg = document.createElement('li');
+                var messages = document.getElementById('messages');
+
+                newMsg.innerHTML = usr + ":   " + msg + "   " + time;
+                console.log(newMsg);
+                messages.appendChild(newMsg);
             });
         });
     </script>

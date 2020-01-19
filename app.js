@@ -21,7 +21,10 @@ io.on('connection', function(socket){
 
     socket.on('message', function(msg){
         console.log("Recieved Msg:" + msg);
-        io.emit('message', msg);
+
+        var usr = "Bobby-B";
+        var time = "1/18/20 5:49:00 PM";
+        io.emit('message', usr, msg, time);
     });
 });
 
