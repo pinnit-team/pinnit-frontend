@@ -74,6 +74,18 @@
                     token = data["token"];
                     roomName = data["room"];
                     chatTitle.innerHTML = String(roomName);
+                    console.log(data);
+                    for(let his of data.history) {
+                        var id = his["from"]["id"];
+                        var username = his["from"]["username"];
+                        var msg = his["msg"];
+
+                        var newMsg = document.createElement('li');
+                        var messages = document.getElementById('messages');
+
+                        newMsg.innerHTML = username + ":          " + msg + "          " + currentTime;
+                        messages.appendChild(newMsg);
+                    }
                 })
             }else{
                 window.location.replace("index.html");
