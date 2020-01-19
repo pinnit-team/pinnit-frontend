@@ -260,17 +260,19 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
-    $.get('https://api.pinchat.tech/rooms/', function(res) {
-        let data = {data: []};
-        for(let room of res) {
-            for(let user of room.users) {
-                data.data.push({lat: user[1], lng: user[0], value: room.users.length / room.messages});
+    var heatmapLayer = new HeatmapOverlay({radius: 10});
+    heatmapLayer.addTo(map);
+    window.setInterval(() => {
+        $.get('https://api.pinchat.tech/rooms/', function(res) {
+            let data = {data: []};
+            for(let room of res) {
+                for(let user of room.users) {
+                    data.data.push({lat: user[1], lng: user[0], value: room.users.length / room.messages});
+                }
             }
-        }
-        var heatmapLayer = new HeatmapOverlay({radius: 10});
-        heatmapLayer.setData(data);
-        heatmapLayer.addTo(map);
-    });
+            heatmapLayer.setData(data);
+        });
+    }, 5000);
 </script>
 </body>
 </html>
