@@ -214,7 +214,7 @@
                 lon: coords.longitude
             }), function(res) {
                 if(res.err === null) {
-                    roomJoin(res.id, $("#username"))
+                    roomJoin(res.room.id, $("#username").val())
                 }
             });
         }
